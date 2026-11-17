@@ -6,6 +6,8 @@
 
     <!-- The only permission: Open-Meteo, for the place search, the weather and the air quality. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Keeps the header weather job (HeaderWeather) scheduled across reboots. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="false"
@@ -30,5 +32,14 @@
             </intent-filter>
             <meta-data android:name="com.gathin.tvhome.card" android:resource="@xml/module_card" />
         </activity>
+        <service
+            android:name=".HeaderWeather$Job"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- Read-only: the current temperature and sky for a launcher header. -->
+        <provider
+            android:name=".HeaderWeather$Provider"
+            android:authorities="io.github.sumyabazar1.weather.header"
+            android:exported="true" />
     </application>
 </manifest>

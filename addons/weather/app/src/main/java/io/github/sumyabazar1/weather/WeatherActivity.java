@@ -62,6 +62,7 @@ public final class WeatherActivity extends Activity {
         setContentView(R.layout.activity_weather);
         place = getSharedPreferences(PREFS, MODE_PRIVATE);
         options = getSharedPreferences("options", MODE_PRIVATE);
+        HeaderWeather.schedule(this);
         readOptions();
         root = findViewById(R.id.root);
         content = findViewById(R.id.content);
@@ -117,6 +118,7 @@ public final class WeatherActivity extends Activity {
                 if (isDestroyed() || !resumed || request != requestId) return;
                 if (result != null) {
                     lastReport = result;
+                    HeaderWeather.store(this, result);
                     updatedAt = new Date();
                     show(result);
                 }
