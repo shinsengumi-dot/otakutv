@@ -210,6 +210,12 @@ final class Config {
     /** Rotating theme images, or the single wallpaper when no collection is configured. */
     final List<File> wallpapers;
     final int wallpaperRotationMinutes;
+    /** config.json wallpaper_rotation_seconds (5-86400): overrides the minutes when set; 0 keeps the minutes. */
+    int wallpaperRotationSeconds;
+    /** config.json wallpaper_transition: {@code none} (default), {@code fade} or {@code slide}. */
+    String wallpaperTransition = "none";
+    /** config.json header_weather: the Weather add-on's reading under the date (off by default). */
+    boolean headerWeather;
     final int wallpaperDim;
     /** The dock band's opacity in percent (config.json dock_opacity, 30-100): below 100 the wallpaper shows through. */
     final int dockOpacity;
@@ -688,6 +694,10 @@ final class Config {
         boolean wallpaperEnabled = json == null || bool(json, "wallpaper", true);
         if (!wallpaperEnabled) wallpaper = null;
         int rotationMinutes = json == null ? 0 : integer(json, "wallpaper_rotation_minutes", 0, 0, 1440);
+        int rotationSeconds = json == null ? 0 : integer(json, "wallpaper_rotation_seconds", 0, 0, 86400);
+        if (rotationSeconds > 0 && rotationSeconds < 5) rotationSeconds = 5;
+        String transition = json == null ? "none" : string(json, "wallpaper_transition", "none");
+        if (!"fade".equals(transition) && !"slide".equals(transition)) transition = "none";
         int wallpaperDim = json == null ? 0 : integer(json, "wallpaper_dim", 0, 0, 90);
         int dockOpacity = json == null ? 100 : integer(json, "dock_opacity", 100, 30, 100);
         dockOpacity = chosenDockOpacity(choices.getInt(DOCK_OPACITY_KEY, -1), dockOpacity);
@@ -697,7 +707,7 @@ final class Config {
         // An unknown order must not silently change how an existing collection rotates.
         if (!WallpaperRotation.validOrder(wallpaperOrder)) wallpaperOrder = WallpaperRotation.ORDER_SHUFFLE;
         List<File> wallpapers = new ArrayList<>();
-        if (rotationMinutes > 0 && dir != null && wallpaperEnabled) {
+        if ((rotationMinutes > 0 || rotationSeconds > 0) && dir != null && wallpaperEnabled) {
             wallpapers.addAll(WallpaperRotation.images(new File(dir, "wallpapers")));
         }
         if (wallpapers.isEmpty() && wallpaper != null) wallpapers.add(wallpaper);
@@ -717,7 +727,7 @@ final class Config {
         Festival festival = json == null ? Festival.NONE : Festival.parse(festivalName(json),
                 string(json, "festival_until", ""), string(json, "greeting", ""), string(json, "accent_color", ""));
 
-        return new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, packageMap(launchActions), packageMap(appLabels),
+        Config built = new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, packageMap(launchActions), packageMap(appLabels),
                 packageMap(appBanners), panelService, panelAction, panelExtra, coocaaSources, inputAction, inputSources, inputUriScheme, Math.max(1, columns),
                 Math.max(0, rowsBelow), animations, advancedEffects, shamsi, greetingName, moduleCards, reducedMotion, bootToLiveTv,
                 openOnStartChoice, dockTitle, dockRow, topMenu, launcherSettingsButton, reorderButton, showNetworkPill, showInputsPill,
@@ -733,6 +743,10 @@ final class Config {
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly, inputsCecStateOnly,
                 Math.max(0, Math.min(600, openOnStartNetworkWait)), openOnStartOnWake, iconOnlyVpn, clockFormat, backOpensClock, glowSnap,
                 settingsKeyClearTask);
+        built.wallpaperRotationSeconds = rotationSeconds;
+        built.wallpaperTransition = transition;
+        built.headerWeather = json != null && bool(json, "header_weather", false);
+        return built;
     }
 
     /**

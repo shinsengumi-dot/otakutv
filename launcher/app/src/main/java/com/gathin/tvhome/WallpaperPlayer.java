@@ -5,13 +5,18 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,6 +38,20 @@ import java.util.concurrent.Executors;
 final class WallpaperPlayer {
     private final FrameLayout root;
     private final ImageView image;
+    /** The next picture while a fade or slide brings it in; null with wallpaper_transition none. */
+    private final ImageView incoming;
+    /** wallpaper_transition: none, fade or slide. */
+    private final String transition;
+    /** wallpaper_rotation_seconds: the player ticks itself instead of waiting for Home's minute tick. */
+    private final boolean ownTick;
+    private boolean animating;
+    private final Runnable tick = new Runnable() {
+        @Override
+        public void run() {
+            update();
+            if (active && !closed) root.postDelayed(this, interval);
+        }
+    };
     private final int backgroundColor;
     private final List<File> files;
     private final long interval;
@@ -66,7 +85,10 @@ final class WallpaperPlayer {
         this.root = root;
         backgroundColor = config.backgroundColor;
         files = new ArrayList<>(config.wallpapers);
-        interval = config.wallpaperRotationMinutes * 60_000L;
+        interval = config.wallpaperRotationSeconds > 0 ? config.wallpaperRotationSeconds * 1_000L
+                : config.wallpaperRotationMinutes * 60_000L;
+        ownTick = config.wallpaperRotationSeconds > 0;
+        transition = config.wallpaperTransition;
         bitmapConfig = config.wallpaperTrueColor ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
         // The dim is painted into the picture (decode), so no full-screen shade layer is drawn on every frame.
         dimColor = config.wallpaperDim > 0 ? (config.wallpaperDim * 255 / 100) << 24 : 0;
@@ -94,8 +116,18 @@ final class WallpaperPlayer {
         if (config.wallpaperEnabled && !files.isEmpty()) {
             root.addView(image, 0, new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            showFirst();
         }
+        if (config.wallpaperEnabled && files.size() > 1 && !"none".equals(transition)) {
+            incoming = new ImageView(context);
+            incoming.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            incoming.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            incoming.setVisibility(View.GONE);
+            root.addView(incoming, 1, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        } else {
+            incoming = null;
+        }
+        if (config.wallpaperEnabled && !files.isEmpty()) showFirst();
     }
 
     /**
@@ -131,15 +163,21 @@ final class WallpaperPlayer {
     void start() {
         active = true;
         update();
+        if (ownTick) {
+            root.removeCallbacks(tick);
+            root.postDelayed(tick, interval);
+        }
     }
 
     void stop() {
         active = false;
+        root.removeCallbacks(tick);
     }
 
     /** Drops the wallpaper texture when Home is hidden and Android asks the process to free memory. */
     void releaseForMemoryPressure() {
         if (current == null) return;
+        finishTransition();
         image.setImageDrawable(null);
         // The renderer may still have a queued frame that references this hardware bitmap. Drop our references and
         // let Android reclaim its native buffer after rendering releases it instead of recycling it mid-frame.
@@ -162,11 +200,12 @@ final class WallpaperPlayer {
     void close() {
         active = false;
         closed = true;
+        root.removeCallbacks(tick);
         decoder.shutdownNow();
     }
 
     void update() {
-        if (!active || closed || loading || files.isEmpty()) return;
+        if (!active || closed || loading || animating || files.isEmpty()) return;
         String previous = preferences.getString("image", "");
         // A picture outside the time of day's group (the group changed) is replaced at once, not after the interval.
         List<File> playable = playable();
@@ -192,7 +231,7 @@ final class WallpaperPlayer {
                     update();
                     return;
                 }
-                show(bitmap);
+                showAnimated(bitmap);
                 displayed = next.getName();
                 showCaption(true);
                 if (!displayed.equals(previous) || changed == 0) {
@@ -218,7 +257,9 @@ final class WallpaperPlayer {
         // margins below take the padding back, so the text stays where it was.
         int pad = Math.round(8 * dp);
         text.setPadding(pad, pad, pad, pad);
-        text.setSingleLine(true);
+        // "Tanjiro Kamado | 竈門炭治郎" in captions.txt: a second, smaller line under the first.
+        text.setMaxLines(2);
+        text.setGravity(Gravity.END);
         text.setEllipsize(TextUtils.TruncateAt.END);
         text.setMaxWidth(Math.round(520 * dp) + 2 * pad);
         text.setFocusable(false);
@@ -247,14 +288,26 @@ final class WallpaperPlayer {
         }
         caption.setContentDescription(name);
         if (!fade || caption.getAlpha() == 0f) {
-            caption.setText(name);
+            caption.setText(twoLines(name));
             caption.setAlpha(1f);
             return;
         }
         caption.animate().alpha(0f).setDuration(250).withEndAction(() -> {
-            caption.setText(name);
+            caption.setText(twoLines(name));
             caption.animate().alpha(1f).setDuration(350).start();
         }).start();
+    }
+
+    /** "Latin | 日本語": the part after " | " goes on a second line, smaller and softer. */
+    private static CharSequence twoLines(String name) {
+        int bar = name.indexOf(" | ");
+        if (bar < 0) return name;
+        String first = name.substring(0, bar).trim(), second = name.substring(bar + 3).trim();
+        SpannableString text = new SpannableString(first + '\n' + second);
+        int start = first.length() + 1;
+        text.setSpan(new RelativeSizeSpan(0.82f), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.setSpan(new ForegroundColorSpan(0xB3FFFFFF), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return text;
     }
 
     /** Names plus sizes: enough to notice a different collection without hashing every image. */
@@ -272,6 +325,55 @@ final class WallpaperPlayer {
         root.setBackground(null);
         image.setImageBitmap(bitmap);
         if (old != null && old != bitmap) image.postDelayed(old::recycle, 500);
+    }
+
+    /** A rotation's change: with wallpaper_transition, the new picture fades or slides in over the old one. */
+    private void showAnimated(Bitmap bitmap) {
+        if (incoming == null || current == null) {
+            show(bitmap);
+            return;
+        }
+        Bitmap old = current;
+        current = bitmap;
+        animating = true;
+        incoming.setImageBitmap(bitmap);
+        incoming.setVisibility(View.VISIBLE);
+        Runnable end = () -> {
+            image.setTranslationX(0f);
+            image.setImageBitmap(bitmap);
+            incoming.setVisibility(View.GONE);
+            incoming.setImageDrawable(null);
+            incoming.setAlpha(1f);
+            incoming.setTranslationX(0f);
+            animating = false;
+            if (old != bitmap) image.postDelayed(old::recycle, 500);
+        };
+        if ("slide".equals(transition)) {
+            incoming.setAlpha(1f);
+            incoming.setTranslationX(width);
+            image.animate().translationX(-width).setDuration(800)
+                    .setInterpolator(new DecelerateInterpolator(1.5f)).start();
+            incoming.animate().translationX(0f).setDuration(800)
+                    .setInterpolator(new DecelerateInterpolator(1.5f)).withEndAction(end).start();
+        } else {
+            incoming.setTranslationX(0f);
+            incoming.setAlpha(0f);
+            incoming.animate().alpha(1f).setDuration(900).withEndAction(end).start();
+        }
+    }
+
+    /** Ends a running fade or slide at once, so the view holds the current picture alone. */
+    private void finishTransition() {
+        if (incoming == null || !animating) return;
+        image.animate().cancel();
+        incoming.animate().cancel();
+        image.setTranslationX(0f);
+        if (current != null) image.setImageBitmap(current);
+        incoming.setVisibility(View.GONE);
+        incoming.setImageDrawable(null);
+        incoming.setAlpha(1f);
+        incoming.setTranslationX(0f);
+        animating = false;
     }
 
     private Bitmap decode(File file) {

@@ -194,6 +194,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView shamsiDate;
     /** lunar_date: the lunisolar date under the date line, and the time zone it is computed for. */
     private TextView lunarDate;
+    /** header_weather: the Weather add-on's reading under the date; null when off. */
+    private HeaderWeatherLine headerWeather;
     private boolean lunar;
     private int lunarOffset;
     private TextView stats;
@@ -446,6 +448,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (festive) updateWifiLabel();
             sky.update();
             wallpaperPlayer.update();
+            if (headerWeather != null) headerWeather.update();
             handler.postDelayed(this, MINUTE_MS);
         }
     };
@@ -595,6 +598,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         lunar = cfg.lunarDate;
         lunarOffset = Lunar.offsetFor(cfg.lunarUtcOffset, Locale.getDefault());
         if (lunar) lunarDate.setVisibility(View.VISIBLE);
+        if (cfg.headerWeather) headerWeather = new HeaderWeatherLine(this, findViewById(R.id.headerWeather));
         greetingName = cfg.greetingName;
         if (cfg.dateBelowClock) moveDateBelowClock();
         if (cfg.dateBelowClock && cfg.iconOnlyButtons && !cfg.topMenu
@@ -1140,6 +1144,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (gameDay != null) gameDay.start();
         sky.update();
         wallpaperPlayer.start();
+        if (headerWeather != null) headerWeather.update();
         handler.postDelayed(minuteTick, MINUTE_MS);
         if (festive && lamp != null) {
             lamp.start();
@@ -1394,6 +1399,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         unregisterReceiver(packageReceiver);
         if (openOnStartOnWake) unregisterReceiver(wakeReceiver);
         wallpaperPlayer.close();
+        if (headerWeather != null) headerWeather.close();
         ConnectivityManager cm = getApplicationContext().getSystemService(ConnectivityManager.class);   // as registered
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (tim != null) tim.unregisterCallback(inputCallback);
