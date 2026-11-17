@@ -1,3 +1,71 @@
+# OtakuTV
+
+**Un écran d'accueil propre, rapide et pensé pour les fans d'anime, pour les box Android TV.**
+
+[English](README.md) · [Guide d'installation](docs/otakutv/INSTALL.fr.md) · [Journal des versions](CHANGELOG.md) · [Crédits](NOTICE.md)
+
+OtakuTV transforme une box Android TV lente et pleine de publicités en un écran d'accueil qui ressemble à un mur
+de vos illustrations d'anime préférées : vos fonds d'écran défilent toutes les quelques secondes avec le nom du
+personnage en lettres latines et en japonais, la météo s'affiche à côté de l'heure, et la box ne rapporte plus
+ce que vous regardez.
+
+C'est une version dérivée de [Clean Your TV](https://github.com/Gathin23/cleanyourtv), qui garde tout ce que ce
+projet fait bien : des listes de débloat qui désactivent (sans jamais désinstaller) le pistage du fabricant, un
+launcher léger sans root ni accès réseau, et des thèmes qui changent l'apparence sans rien recompiler. OtakuTV
+y ajoute ce qu'un fan d'anime attend.
+
+> **Version 0.1.0** — première version, testée sur une Xiaomi Mi Box 3 (MIBOX3, Android 9).
+
+## Fonctionnalités
+
+### Nouveau dans OtakuTV
+
+| Fonctionnalité | Ce que vous obtenez | Comment l'activer |
+|---|---|---|
+| **Défilement rapide des fonds d'écran** | Vos images changent toutes les quelques secondes, au lieu d'une minute minimum | `"wallpaper_rotation_seconds": 6` dans votre thème |
+| **Transitions fondu ou balayage** | Un fondu enchaîné ou un glissement latéral entre deux images (aucune transition avant) | `"wallpaper_transition": "slide"` ou `"fade"` |
+| **Noms bilingues** | Le nom du personnage sous les boutons du haut, avec son nom japonais en plus petit dessous | `Tanjiro Kamado \| 竈門炭治郎` dans `wallpapers/captions.txt` |
+| **Météo à côté de l'heure** | Icône, température et ciel sous la date, mis à jour toutes les 30 minutes | `"header_weather": true` et l'add-on Météo |
+| **Typographie façon iOS** | Toute l'interface en Inter, la police libre la plus proche de celle d'Apple | Intégrée |
+| **Liste de débloat Mi Box 3** | Une liste testée pour la Mi Box 3, qui désactive le service de mise à jour *avant* PatchWall pour qu'il ne revienne pas | [`docs/otakutv/xiaomi-mi-box-3-debloat.txt`](docs/otakutv/xiaomi-mi-box-3-debloat.txt) |
+| **Réglages confidentialité et vitesse** | Rapports d'erreurs vers Google coupés, DNS anti-pub, animations système à 0,5×, annulables en une commande | [`tools/otakutv-privacy.ps1`](tools/otakutv-privacy.ps1) |
+| **Mesuré, pas deviné** | La liste Mi Box 3 vient d'un audit réseau et mémoire de la box | [`docs/otakutv/AUDIT-mibox3.md`](docs/otakutv/AUDIT-mibox3.md) |
+
+Toutes les nouveautés sont **désactivées par défaut** : un thème ou un réglage les active, et une box qui ne
+s'en sert pas fonctionne exactement comme avant.
+
+## Vos images, vos droits
+
+OtakuTV **ne fournit aucune illustration d'anime**. Les affiches officielles et la plupart des fan arts
+appartiennent à leurs auteurs, et les sites de fonds d'écran ne les autorisent que pour un usage personnel.
+Vous ajoutez vos propres images à votre thème : `tools/wallpaper_prep.py` les redimensionne et les assombrit
+pour la TV, et le fichier des noms donne à chacune son nom. Voir le
+[guide d'installation](docs/otakutv/INSTALL.fr.md#7-vos-fonds-décran-anime).
+
+## Ce qu'il faut
+
+- Une box ou une TV Android TV sous Android 8 ou plus récent, avec les options pour les développeurs
+  (débogage USB ou réseau).
+- Un ordinateur avec Python 3.10 ou plus, et Java 17 avec le SDK Android 34 pour compiler le launcher.
+- Testé sous Windows 11 ; les scripts fonctionnent aussi sous macOS et Linux.
+
+## Feuille de route
+
+- Couleur d'accent tirée du fond d'écran affiché (lueur et reflet au focus).
+- Parallaxe et zoom lent du fond d'écran quand on se déplace entre les applis.
+- Un écran de veille OtakuTV avec vos images et leurs noms, à la place de Backdrop de Google.
+- Une carte « Ce soir » avec les prochains épisodes de vos séries (AniList), sous forme d'add-on.
+- Une horloge en kanji et une interface en japonais.
+
+## Crédits et licence
+
+OtakuTV est publié sous licence MIT, comme Clean Your TV. Les crédits du projet d'origine, de l'add-on Météo et
+des polices sont dans [NOTICE.md](NOTICE.md).
+
+---
+
+*Ci-dessous, le README du projet de base, Clean Your TV : tout ce qu'il décrit fait aussi partie d'OtakuTV.*
+
 <p align="center">
   <a href="https://cleanyour.tv"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner.png" alt="CleanYourTV. Votre téléviseur, sans les publicités. Retirez les applications superflues de n'importe quel Android TV ou Google TV par Wi-Fi et remplacez l'écran d'accueil rempli de publicités par un launcher épuré, au style Apple TV. Sans root, sans câble, rien de désinstallé, et une restauration en une ligne." width="800"></a>
 </p>

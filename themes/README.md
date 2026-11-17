@@ -156,6 +156,9 @@ A new key needs one there in the same pull request.
 | `sky_intensity` | 0 to 100 | Time-of-day backdrop: a dark gradient that follows the clock, 0 hides it (default) |
 | `wallpaper` | bool | Show the theme's picture, `wallpaper.jpg` or its `wallpapers/` collection (`true`), or draw neither (`false`) |
 | `wallpaper_rotation_minutes` | 0 to 1440 | Rotate images in the theme's `wallpapers/` folder at this interval; 0 keeps the single-image behaviour. A negative or non-numeric value is ignored, and 0 means "no rotation", not "every minute" |
+| `wallpaper_rotation_seconds` | 0 to 86400 | Rotate the `wallpapers/` collection every this many seconds (5 at least); set, it overrides `wallpaper_rotation_minutes`, and 0 (the default) keeps the minutes. OtakuTV |
+| `wallpaper_transition` | `none`, `fade` or `slide` | How a rotated picture replaces the last one: `none` (the default) swaps at once, `fade` crossfades in 900 ms, `slide` slides the new one in from the right in 800 ms. OtakuTV |
+| `header_weather` | bool | The Weather add-on's current reading (icon, temperature, sky) under the date; needs `addons/weather` installed with a city chosen. Home only reads the add-on's provider. Off unless set. OtakuTV |
 | `wallpaper_order` | `shuffle` or `sequential` | How a collection advances. `shuffle` (the default, and what launchers did before this key existed) avoids repeating the current picture; `sequential` walks the folder in filename order and wraps at the end. An unknown value falls back to `shuffle` |
 | `wallpaper_dim` | 0 to 90 | Black overlay over wallpaper images, in percent; 0 by default and no shade view at all |
 | `dock_opacity` | 30 to 100 | Opacity of the dock's band, in percent, so a wallpaper shows through it; 100 by default (the cinematic shelf keeps its own translucent band). Launcher settings on the TV offers 100, 70, 50 or 30, which wins until the next theme push or Follow theme |

@@ -1,0 +1,12 @@
+# One line per picture: file name, a Tab, then the name. " | " starts the smaller Japanese line.
+# Put your own pictures beside this file (01.jpg, 02.jpg, ... from tools/wallpaper_prep.py).
+01.jpg	Tanjiro Kamado | 竈門炭治郎
+02.jpg	Nezuko Kamado | 竈門禰豆子
+03.jpg	Zenitsu Agatsuma | 我妻善逸
+04.jpg	Akaza | 猗窩座
+05.jpg	Yoriichi Tsugikuni | 継国縁壱
+06.jpg	Kokushibo | 黒死牟
+07.jpg	Itachi Uchiha | うちはイタチ
+08.jpg	Monkey D. Luffy | モンキー・D・ルフィ
+09.jpg	Jujutsu Kaisen | 呪術廻戦
+10.jpg	Izuku Midoriya | 緑谷出久

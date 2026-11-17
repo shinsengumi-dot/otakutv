@@ -46,8 +46,9 @@ Saved choices override these defaults. With no saved choices the page is as abov
 | Permission | Why |
 |---|---|
 | `INTERNET` | Open-Meteo: the place search, the weather and the air quality. |
+| `RECEIVE_BOOT_COMPLETED` | Keeps the 30-minute job that refreshes the reading for the launcher header (`header_weather`, OtakuTV) scheduled after a reboot. |
 
-That is all. What is sent: the city name you type in the search, then that place's latitude and longitude. No
+What is sent: the city name you type in the search, then that place's latitude and longitude. No
 account, no telemetry, no ads, no background service, no location permission. The chosen city stays in the
 app's own storage (backups are off).
 

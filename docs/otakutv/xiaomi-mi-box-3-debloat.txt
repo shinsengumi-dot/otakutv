@@ -1,0 +1,56 @@
+# Xiaomi Mi Box 3 (model MIBOX3, codename once, Amlogic), Android TV 9 (SDK 28), firmware PI.3934,
+# 2 GB RAM, 1920x1080. Tested with OtakuTV 0.1.0 on 2026-11-17 and 2026-11-18.
+#
+# Apply:   tools\disable.ps1 -TvHost <box ip> docs\otakutv\xiaomi-mi-box-3-debloat.txt
+# Undo:    tools\restore.ps1 -TvHost <box ip> docs\otakutv\xiaomi-mi-box-3-debloat.txt
+# Everything is DISABLED, not uninstalled. Comment out (#) any line you want to keep.
+#
+# Notes from this box (details in docs/otakutv/AUDIT-mibox3.md):
+# - The Xiaomi update service is disabled BEFORE PatchWall: left enabled, it installs PatchWall again
+#   a few minutes after you disable it. With this order PatchWall stayed off.
+# - Kept on purpose, not in this list: the voice assistant (com.google.android.katniss,
+#   com.google.android.speech.pumpkin), Chromecast (com.google.android.apps.mediashell), the Google
+#   screensaver (com.google.android.backdrop), the phone remote (com.google.android.tv.remote.service),
+#   Mi cast (com.mitv.milinkservice, com.mitv.videoplayer).
+# - Leave alone: com.xiaomi.android.tvsetup.partnercustomizer (remote shortcut buttons), mitv.service,
+#   com.droidlogic* (Amlogic system, Bluetooth, NTP), com.google.android.tungsten.setupwraith.
+# - Firmware updater: this list disables com.xiaomi.mitv.updateservice because it is also the channel
+#   that re-installs PatchWall. Enable it again to check for a firmware update.
+# - Measured: free RAM 979 MB before, 1.12 GB after the list (same session, no reboot).
+
+# Xiaomi + Google telemetry and ad tracking
+com.miui.tv.analytics                  # Mi analytics
+tv.alphonso.alphonso_eula              # Alphonso ad tracking (reads what is on screen)
+com.google.android.feedback
+com.google.android.tv.bugreportsender
+
+# Xiaomi background services. Before PatchWall: the updater re-installs it
+com.xiaomi.mitv.updateservice          # firmware and PatchWall updates; re-enable to check for a firmware update
+com.mitv.download.service              # its download helper
+
+# PatchWall, content rows, promos, auto-installs
+com.mitv.tvhome.atv                    # PatchWall
+com.mitv.tvhome.michannel              # Mi Channel rows
+com.xm.webcontent                      # Xiaomi web promos
+com.google.android.tvrecommendations
+android.autoinstalls.config.xioami.mibox3   # Play auto-install of partner apps (sic, "xioami")
+
+# Google account sync a TV box does not need (the calendar provider woke the box 4 times a day)
+com.google.android.syncadapters.calendar
+com.google.android.syncadapters.contacts
+
+# Preloaded apps
+com.google.android.tv                  # Live Channels: no tuner on a box
+com.google.android.marvin.talkback     # screen reader; keep it if someone in the home needs it
+com.android.printspooler
+com.android.camera2
+com.google.android.videos              # Play Movies & TV
+com.google.android.play.games          # ran a recommendations service while never opened
+
+# Personal choice: streaming apps (Prime Video and Netflix used the network in the background unused)
+com.google.android.youtube.tvmusic
+com.amazon.amazonvideo.livingroom      # Prime Video
+com.netflix.ninja                      # Netflix; the remote's Netflix button stops working
+
+# Stock Google TV launcher, replaced by the OtakuTV launcher (disabled last, after Home is confirmed)
+com.google.android.tvlauncher

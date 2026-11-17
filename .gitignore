@@ -21,3 +21,6 @@ bench-results/
 *.aab
 launcher/hs_err_pid*.log
 launcher/replay_pid*.log
+
+# OtakuTV: saved settings from tools/otakutv-privacy.ps1 (name carries the box address)
+tools/otakutv-privacy-*.json

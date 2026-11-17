@@ -1,3 +1,68 @@
+# OtakuTV
+
+**A clean, fast, anime-first home screen for Android TV boxes.**
+
+[Français](README.fr.md) · [Install guide](docs/otakutv/INSTALL.md) · [Changelog](CHANGELOG.md) · [Credits](NOTICE.md)
+
+OtakuTV turns a slow, ad-filled Android TV box into a home screen that looks like a wall of your favourite
+anime art: your own wallpapers slide by every few seconds with the character's name in Latin letters and in
+Japanese, the weather sits next to the clock, and the box no longer reports what you watch.
+
+It is a fork of [Clean Your TV](https://github.com/Gathin23/cleanyourtv), and keeps everything that project
+does well: debloat lists that disable (never uninstall) the vendor's tracking, a light launcher that needs no
+root and no network, and themes that change the look without rebuilding anything. OtakuTV adds what an anime
+fan wants on top of it.
+
+> **Version 0.1.0** — first release, tested on a Xiaomi Mi Box 3 (MIBOX3, Android 9).
+
+## Features
+
+### New in OtakuTV
+
+| Feature | What you get | How to turn it on |
+|---|---|---|
+| **Fast wallpaper rotation** | Your pictures change every few seconds instead of every minute or more | `"wallpaper_rotation_seconds": 6` in your theme |
+| **Fade or slide transitions** | A smooth crossfade or a sideways slide between pictures (no transition before) | `"wallpaper_transition": "slide"` or `"fade"` |
+| **Bilingual captions** | The character's name under the top buttons, with its Japanese name on a smaller second line | `Tanjiro Kamado \| 竈門炭治郎` in `wallpapers/captions.txt` |
+| **Weather next to the clock** | Icon, temperature and sky under the date, updated every 30 minutes | `"header_weather": true` plus the Weather add-on |
+| **iOS-like typography** | The whole interface in Inter, the closest open font to Apple's system font | Built in |
+| **Mi Box 3 debloat list** | A tested list for the Xiaomi Mi Box 3, with the update service disabled *before* PatchWall so it stays off | [`docs/otakutv/xiaomi-mi-box-3-debloat.txt`](docs/otakutv/xiaomi-mi-box-3-debloat.txt) |
+| **Privacy and speed tweaks** | Crash reports to Google off, ad-blocking DNS on, system animations at 0.5×, with a one-command undo | [`tools/otakutv-privacy.ps1`](tools/otakutv-privacy.ps1) |
+| **Measured, not guessed** | The Mi Box 3 list comes from a network and memory audit of the box | [`docs/otakutv/AUDIT-mibox3.md`](docs/otakutv/AUDIT-mibox3.md) |
+
+Everything new is **off by default**: a theme or a setting turns it on, so a box that does not use it behaves
+exactly as before.
+
+## Your pictures, your rights
+
+OtakuTV **ships no anime artwork**. Official posters and most fan art belong to their authors, and wallpaper
+sites allow them for personal use only. You add your own pictures to your theme; `tools/wallpaper_prep.py`
+resizes and darkens them for the TV, and the captions file gives each one its name. See the
+[install guide](docs/otakutv/INSTALL.md#7-your-anime-wallpapers).
+
+## Requirements
+
+- An Android TV box or TV with Android 8 or later and developer options (USB or network debugging).
+- A computer with Python 3.10+, and JDK 17 with the Android SDK 34 to build the launcher.
+- Tested on Windows 11; the scripts also run on macOS and Linux.
+
+## Roadmap
+
+- Accent colour taken from the wallpaper on screen (focus glow and highlight).
+- Parallax and slow zoom on the wallpaper as the focus moves.
+- An OtakuTV screensaver with your pictures and their names, to replace Google's Backdrop.
+- A "Tonight" card with the next episodes of your shows (AniList), as an add-on.
+- A clock in kanji and a Japanese interface option.
+
+## Credits and licence
+
+OtakuTV is released under the MIT licence, as Clean Your TV is. Credits for the original project, the Weather
+add-on and the fonts are in [NOTICE.md](NOTICE.md).
+
+---
+
+*Below is the README of the base project, Clean Your TV: everything it describes is part of OtakuTV too.*
+
 <p align="center">
   <a href="https://cleanyour.tv"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner.png" alt="CleanYourTV. Your TV, minus the ads. Strip the bloatware from any Android TV or Google TV over Wi-Fi and replace the ad-filled home screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled, and a one-line restore." width="800"></a>
 </p>
@@ -196,6 +261,7 @@ tools/venv/bin/python -I tools/wallpaper_prep.py ~/Pictures/trip mytheme/wallpap
 | [`tools/b64push.py`](tools/b64push.py) | Uploads large files such as APKs in base64 chunks and verifies the checksum. |
 | [`tools/relay.py`](tools/relay.py) | Forwards a local port to the TV's ADB port, for assistants whose sandbox can't reach your network. Listens on this computer only. [Guide](tools/relay.md). |
 | [`tools/disable.sh`](tools/disable.sh), [`restore.sh`](tools/restore.sh) | Apply or undo a debloat list, the undo from the state recorded before the change. |
+| [`tools/otakutv-privacy.ps1`](tools/otakutv-privacy.ps1) | OtakuTV: crash reports to Google off, AdGuard DNS as Private DNS, system animations at 0.5×; `-Undo` puts back the values it saved. |
 | [`tools/recovery.py`](tools/recovery.py) | Writes the record `disable.sh` needs to undo itself, and prints the restore batch. |
 | [`tools/check.py`](tools/check.py) | Compares the TV with the list that was applied, for what a firmware update undid; `--fix` puts it back. |
 | [`tools/match.py`](tools/match.py) | Reads a saved `pm list packages` and prints, for each package, how many lists in `examples/` disable it, how many keep it commented out, and their most common note; Android's core packages show as `never`. Offline, changes nothing (`tools/venv/bin/python -I tools/match.py packages.txt`). |
