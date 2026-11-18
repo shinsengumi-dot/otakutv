@@ -4,6 +4,15 @@
 
 [Français](README.fr.md) · [Install guide](docs/otakutv/INSTALL.md) · [Changelog](CHANGELOG.md) · [Credits](NOTICE.md)
 
+<img src="docs/otakutv/screenshots/home.jpg" width="100%" alt="OtakuTV home screen: clock, weather under the date, a bilingual caption and the glass dock over an anime landscape">
+
+| A new picture slides in every few seconds | The focus moves with a glass highlight |
+|---|---|
+| <img src="docs/otakutv/screenshots/slide.jpg" width="100%" alt="The next wallpaper sliding in"> | <img src="docs/otakutv/screenshots/focus.jpg" width="100%" alt="Glass focus highlight on the third app"> |
+
+<sub>Screenshots from a Xiaomi Mi Box 3. The pictures are the CC0 anime-style illustrations of the `twilight` and
+`weeb` themes, not copyrighted series art: see [NOTICE.md](NOTICE.md).</sub>
+
 OtakuTV turns a slow, ad-filled Android TV box into a home screen that looks like a wall of your favourite
 anime art: your own wallpapers slide by every few seconds with the character's name in Latin letters and in
 Japanese, the weather sits next to the clock, and the box no longer reports what you watch.

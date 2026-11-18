@@ -4,6 +4,15 @@
 
 [English](README.md) · [Guide d'installation](docs/otakutv/INSTALL.fr.md) · [Journal des versions](CHANGELOG.md) · [Crédits](NOTICE.md)
 
+<img src="docs/otakutv/screenshots/home.jpg" width="100%" alt="Accueil OtakuTV : l'heure, la météo sous la date, un nom bilingue et le dock en verre sur un paysage anime">
+
+| Une nouvelle image glisse toutes les quelques secondes | Le focus se déplace avec un reflet en verre |
+|---|---|
+| <img src="docs/otakutv/screenshots/slide.jpg" width="100%" alt="L'image suivante en train de glisser"> | <img src="docs/otakutv/screenshots/focus.jpg" width="100%" alt="Reflet en verre sur la troisième appli"> |
+
+<sub>Captures prises sur une Xiaomi Mi Box 3. Les images sont les illustrations de style anime sous licence CC0 des
+thèmes `twilight` et `weeb`, pas des illustrations de séries protégées : voir [NOTICE.md](NOTICE.md).</sub>
+
 OtakuTV transforme une box Android TV lente et pleine de publicités en un écran d'accueil qui ressemble à un mur
 de vos illustrations d'anime préférées : vos fonds d'écran défilent toutes les quelques secondes avec le nom du
 personnage en lettres latines et en japonais, la météo s'affiche à côté de l'heure, et la box ne rapporte plus
